@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Katastata.Contracts;
 using Katastata.Models;
 using System;
@@ -133,7 +134,7 @@ namespace Katastata.Services
         public bool CategoryExists(string name) => _apiClient.CategoryExists(name);
         public void AddCategory(string name) => _apiClient.AddCategory(name);
         public List<Program> GetProgramsByCategory(int categoryId) => _apiClient.GetProgramsByCategory(categoryId);
-        public List<Category> GetAllCategories() => _apiClient.GetCategories();
+        public List<Katastata.Models.Category> GetAllCategories() => _apiClient.GetCategories();
         public void UpdateProgram(Program program) => _apiClient.UpdateProgram(program);
         public void DeleteCategory(int categoryId) => _apiClient.DeleteCategory(categoryId);
         public void DeleteUser(int userId) => _apiClient.DeleteUser(userId);

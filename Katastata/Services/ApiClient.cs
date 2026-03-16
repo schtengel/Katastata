@@ -56,7 +56,7 @@ namespace Katastata.Services
                 Content = JsonContent.Create(payload)
             };
 
-            var response = _httpClient.Send(request).GetAwaiter().GetResult();
+            var response = _httpClient.SendAsync(request).GetAwaiter().GetResult();
             response.EnsureSuccessStatusCode();
 
             if (typeof(T) == typeof(object))

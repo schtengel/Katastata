@@ -10,18 +10,18 @@ namespace Katastata.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private readonly AppMonitorService _service;
+        private readonly AppMonitorService? _service;
         private readonly int _userId;
 
-        public AppMonitorService Service => _service;
+        public AppMonitorService Service => _service ?? throw new InvalidOperationException("Service is not initialized.");
         public int UserId => _userId;
 
         public ObservableCollection<Program> Programs { get; } = new ObservableCollection<Program>();
         public ObservableCollection<Category> Categories { get; } = new ObservableCollection<Category>();
 
         // Свойства для фильтрации и сортировки
-        private Category _selectedCategory;
-        public Category SelectedCategory
+        private Category? _selectedCategory;
+        public Category? SelectedCategory
         {
             get => _selectedCategory;
             set
@@ -45,15 +45,15 @@ namespace Katastata.ViewModels
         }
 
         // Команды (все — без generic)
-        public RelayCommand ScanCommand { get; }
-        public RelayCommand ShowSessionsCommand { get; }
-        public RelayCommand ShowStatisticsCommand { get; }
-        public RelayCommand ExportStatisticsExcelCommand { get; }
-        public RelayCommand ExportStatisticsWordCommand { get; }
-        public RelayCommand CreateCategoryCommand { get; }
-        public RelayCommand OpenSettingsCommand { get; }
-        public RelayCommand SortCommand { get; }
-        public RelayCommand OpenAboutCommand { get; }
+        public RelayCommand? ScanCommand { get; }
+        public RelayCommand? ShowSessionsCommand { get; }
+        public RelayCommand? ShowStatisticsCommand { get; }
+        public RelayCommand? ExportStatisticsExcelCommand { get; }
+        public RelayCommand? ExportStatisticsWordCommand { get; }
+        public RelayCommand? CreateCategoryCommand { get; }
+        public RelayCommand? OpenSettingsCommand { get; }
+        public RelayCommand? SortCommand { get; }
+        public RelayCommand? OpenAboutCommand { get; }
 
         public MainViewModel() { }
 
@@ -82,12 +82,12 @@ namespace Katastata.ViewModels
             });
 
             LoadPrograms();
-            _service.StartMonitoring(_userId);
+            Service.StartMonitoring(_userId);
         }
 
         private void LoadCategories()
         {
-            var cats = _service.GetAllCategories();
+            var cats = Service.GetAllCategories();
             Categories.Clear();
 
             Categories.Add(Category.All);
@@ -104,7 +104,7 @@ namespace Katastata.ViewModels
         {
             try
             {
-                _service.ScanRunningPrograms(_userId);
+                Service.ScanRunningPrograms(_userId);
                 LoadPrograms();
             }
             catch (Exception ex)
@@ -115,13 +115,13 @@ namespace Katastata.ViewModels
 
         private void LoadPrograms()
         {
-            var items = _service.GetAllPrograms(_userId).ToList();
+            var items = Service.GetAllPrograms(_userId).ToList();
             ApplyFilterAndSort(items);
         }
 
-        private void ApplyFilterAndSort(List<Program> source = null)
+        private void ApplyFilterAndSort(List<Program>? source = null)
         {
-            var filtered = (source ?? _service.GetAllPrograms(_userId).ToList()).AsEnumerable();
+            var filtered = (source ?? Service.GetAllPrograms(_userId).ToList()).AsEnumerable();
 
             if (SelectedCategory != null && SelectedCategory.Id != -1) // -1 = "Все"
             {
@@ -153,21 +153,21 @@ namespace Katastata.ViewModels
 
         private void ShowSessions()
         {
-            var sessions = _service.GetSessions(_userId);
+            var sessions = Service.GetSessions(_userId);
             var sessionsWindow = new SessionsWindow(sessions);
             sessionsWindow.Show();
         }
 
         private void ShowStatistics()
         {
-            var stats = _service.GetStatistics(_userId);
+            var stats = Service.GetStatistics(_userId);
             var statsWindow = new StatisticsWindow(stats);
             statsWindow.Show();
         }
 
         private void OpenSettings()
         {
-            var settingsWindow = new SettingsWindow(_service, _userId);
+            var settingsWindow = new SettingsWindow(Service, _userId);
             settingsWindow.ShowDialog();
         }
 
@@ -176,7 +176,7 @@ namespace Katastata.ViewModels
             var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "Excel files (*.xlsx)|*.xlsx", DefaultExt = "xlsx" };
             if (dialog.ShowDialog() == true)
             {
-                _service.ExportStatisticsToExcel(_userId, dialog.FileName);
+                Service.ExportStatisticsToExcel(_userId, dialog.FileName);
                 System.Windows.MessageBox.Show("Экспорт завершен");
             }
         }
@@ -186,13 +186,13 @@ namespace Katastata.ViewModels
             var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "Word files (*.docx)|*.docx", DefaultExt = "docx" };
             if (dialog.ShowDialog() == true)
             {
-                _service.ExportStatisticsToWord(_userId, dialog.FileName);
+                Service.ExportStatisticsToWord(_userId, dialog.FileName);
                 System.Windows.MessageBox.Show("Экспорт завершен");
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

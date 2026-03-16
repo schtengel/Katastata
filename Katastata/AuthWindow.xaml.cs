@@ -19,7 +19,7 @@ namespace Katastata
             InitializeComponent();
             _vm = new UserViewModel(apiClient);
             _vm.LoginSuccessful += OnLoginSuccessful;
-            ShowLoginPage(null, null!);
+            ShowLoginPage(null, new RoutedEventArgs());
             DataContext = _vm;
         }
 

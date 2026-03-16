@@ -24,12 +24,12 @@ namespace Katastata.ViewModels
 
 
         public ObservableCollection<Category> Categories { get; } = new ObservableCollection<Category>();
-        public Category SelectedCategory { get; set; }
+        public Category? SelectedCategory { get; set; }
 
         private readonly AppMonitorService _service;
         private readonly Program _program;
 
-        private string _editableProgramName;
+        private string _editableProgramName = string.Empty;
         public string EditableProgramName
         {
             get => _editableProgramName;
@@ -45,7 +45,7 @@ namespace Katastata.ViewModels
         public RelayCommand SaveNameCommand { get; } // Новая команда
 
 
-        public ProgramDetailsViewModel(Program program, List<Session> sessions, Statistics stat, AppMonitorService service)
+        public ProgramDetailsViewModel(Program program, List<Session> sessions, Statistics? stat, AppMonitorService service)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
             _program = program ?? throw new ArgumentNullException(nameof(program));

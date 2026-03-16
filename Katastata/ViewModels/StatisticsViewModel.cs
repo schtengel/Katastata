@@ -11,7 +11,7 @@ namespace Katastata.ViewModels
         public ObservableCollection<StatisticsViewModelItem> Statistics { get; } = new ObservableCollection<StatisticsViewModelItem>();
         public ICollectionView FilteredStatistics { get; }
 
-        private string _filterText;
+        private string _filterText = string.Empty;
         public string FilterText
         {
             get => _filterText;
@@ -23,8 +23,8 @@ namespace Katastata.ViewModels
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -42,7 +42,7 @@ namespace Katastata.ViewModels
         {
             if (string.IsNullOrWhiteSpace(FilterText)) return true;
             var statItem = item as StatisticsViewModelItem;
-            return statItem.ProgramName.Contains(FilterText, StringComparison.OrdinalIgnoreCase);
+            return statItem != null && statItem.ProgramName.Contains(FilterText, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

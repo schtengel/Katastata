@@ -13,7 +13,7 @@ namespace Katastata.ViewModels
         public ObservableCollection<SessionViewModel> Sessions { get; } = new ObservableCollection<SessionViewModel>();
         public ICollectionView FilteredSessions { get; }
 
-        private string _filterText;
+        private string _filterText = string.Empty;
         public string FilterText
         {
             get => _filterText;
@@ -25,8 +25,8 @@ namespace Katastata.ViewModels
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -44,8 +44,8 @@ namespace Katastata.ViewModels
         {
             if (string.IsNullOrWhiteSpace(FilterText)) return true;
             var sessionItem = item as SessionViewModel;
-            return sessionItem.ProgramName.Contains(FilterText, StringComparison.OrdinalIgnoreCase) ||
-                   sessionItem.CategoryName.Contains(FilterText, StringComparison.OrdinalIgnoreCase);
+            return sessionItem != null && (sessionItem.ProgramName.Contains(FilterText, StringComparison.OrdinalIgnoreCase) ||
+                   sessionItem.CategoryName.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

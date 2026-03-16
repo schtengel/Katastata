@@ -10,8 +10,8 @@ namespace Katastata.ViewModels
         private readonly AppMonitorService _service;
         private readonly int _userId;
 
-        public List<Statistics> StatisticsList { get; set; }
-        public List<Session> SessionsList { get; set; }
+        public List<Statistics> StatisticsList { get; set; } = new();
+        public List<Session> SessionsList { get; set; } = new();
 
         public ObservableCollection<StatisticsViewModelItem> Statistics { get; } = new ObservableCollection<StatisticsViewModelItem>();
         public ObservableCollection<SessionViewModel> Sessions { get; } = new ObservableCollection<SessionViewModel>();
@@ -54,7 +54,7 @@ namespace Katastata.ViewModels
                 Categories.Add(cat);
         }
 
-        private void CreateCategory(object parameter)
+        private void CreateCategory(object? parameter)
         {
             // Теперь метод принимает object (как требует RelayCommand)
             var name = parameter as string ?? "";
@@ -89,7 +89,7 @@ namespace Katastata.ViewModels
             }
         }
 
-        private void DeleteCategory(object parameter)
+        private void DeleteCategory(object? parameter)
         {
             if (parameter == null)
                 return;

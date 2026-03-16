@@ -1,7 +1,6 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Katastata.Contracts;
 using Katastata.Models;
 using System;
@@ -188,19 +187,19 @@ namespace Katastata.Services
             {
                 MainDocumentPart mainPart = document.AddMainDocumentPart();
                 mainPart.Document = new Document();
-                Body body = mainPart.Document.AppendChild(new Body());
-                Table table = new Table();
-                TableRow headerRow = new TableRow();
-                headerRow.Append(new TableCell(new Paragraph(new Run(new Text("Программа")))));
-                headerRow.Append(new TableCell(new Paragraph(new Run(new Text("Общее время")))));
-                headerRow.Append(new TableCell(new Paragraph(new Run(new Text("Последний запуск")))));
+                DocumentFormat.OpenXml.Wordprocessing.Body body = mainPart.Document.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Body());
+                DocumentFormat.OpenXml.Wordprocessing.Table table = new DocumentFormat.OpenXml.Wordprocessing.Table();
+                DocumentFormat.OpenXml.Wordprocessing.TableRow headerRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+                headerRow.Append(new DocumentFormat.OpenXml.Wordprocessing.TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Программа")))));
+                headerRow.Append(new DocumentFormat.OpenXml.Wordprocessing.TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Общее время")))));
+                headerRow.Append(new DocumentFormat.OpenXml.Wordprocessing.TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Последний запуск")))));
                 table.Append(headerRow);
                 foreach (var stat in stats)
                 {
-                    TableRow dataRow = new TableRow();
-                    dataRow.Append(new TableCell(new Paragraph(new Run(new Text(stat.Program?.Name ?? "Unknown")))));
-                    dataRow.Append(new TableCell(new Paragraph(new Run(new Text(stat.TotalTime.ToString())))));
-                    dataRow.Append(new TableCell(new Paragraph(new Run(new Text(stat.LastLaunch?.ToString() ?? "N/A")))));
+                    DocumentFormat.OpenXml.Wordprocessing.TableRow dataRow = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+                    dataRow.Append(new DocumentFormat.OpenXml.Wordprocessing.TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text(stat.Program?.Name ?? "Unknown")))));
+                    dataRow.Append(new DocumentFormat.OpenXml.Wordprocessing.TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text(stat.TotalTime.ToString())))));
+                    dataRow.Append(new DocumentFormat.OpenXml.Wordprocessing.TableCell(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text(stat.LastLaunch?.ToString() ?? "N/A")))));
                     table.Append(dataRow);
                 }
                 body.Append(table);

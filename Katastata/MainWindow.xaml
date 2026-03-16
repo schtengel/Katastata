@@ -75,7 +75,8 @@
         </Border>
 
         <!-- Контент -->
-        <Grid Margin="20,70,20,20">
+        <Border Margin="20,70,20,20" Style="{StaticResource ModernCardStyle}" Padding="16">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -87,7 +88,7 @@
                         HorizontalAlignment="Left"
                         Margin="0,0,0,15">
                 
-                <Button Content="⟳ Обновить"
+                <Button Content="🔄 Обновить"
                         Command="{Binding ScanCommand}"
                         Style="{DynamicResource ThemeButtonStyle}"
                         Click="ScannerBtn_Click"/>
@@ -236,5 +237,6 @@
             </Border>
 
         </Grid>
+        </Border>
     </Grid>
 </Window>

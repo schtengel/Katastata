@@ -12,10 +12,11 @@
 
     <Grid>
 
-        <Border CornerRadius="0"
+        <Border Style="{StaticResource ModernCardStyle}"
+                CornerRadius="18"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
-                Background="{DynamicResource WindowBackgroundBrush}">
+                Background="{DynamicResource MaterialDesignPaper}">
 
             <Grid x:Name="RootGrid">
                 <Grid.RowDefinitions>
@@ -58,7 +59,8 @@
             <!-- Область контента -->
                 <Border Grid.Row="1"
                     Margin="20 100 20 20"
-                    CornerRadius="10">
+                    Style="{StaticResource ModernCardStyle}"
+                    CornerRadius="12">
                     <ContentControl x:Name="ContentArea"/>
                 </Border>
 

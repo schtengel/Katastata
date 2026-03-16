@@ -5,6 +5,8 @@ VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Katastata", "Katastata\Katastata.csproj", "{0823EB71-F775-4E47-A411-E1991F9A0C3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Katastata.Api", "Katastata.Api\Katastata.Api.csproj", "{E307F4B8-4A5B-4AB7-91B3-D77E43B4D1C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{0823EB71-F775-4E47-A411-E1991F9A0C3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0823EB71-F775-4E47-A411-E1991F9A0C3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0823EB71-F775-4E47-A411-E1991F9A0C3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E307F4B8-4A5B-4AB7-91B3-D77E43B4D1C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E307F4B8-4A5B-4AB7-91B3-D77E43B4D1C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E307F4B8-4A5B-4AB7-91B3-D77E43B4D1C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E307F4B8-4A5B-4AB7-91B3-D77E43B4D1C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

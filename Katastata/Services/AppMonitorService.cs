@@ -1,27 +1,23 @@
-﻿using Katastata.Data;
+﻿using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Katastata.Contracts;
 using Katastata.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Timers;
-using Microsoft.EntityFrameworkCore;
-
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-
-using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Katastata.Services
 {
     public class AppMonitorService
     {
-        private readonly AppDbContext _context;
+        private readonly ApiClient _apiClient;
 
-        private Dictionary<int, Session> activeSessions = new Dictionary<int, Session>();
-        private System.Timers.Timer monitoringTimer; 
+        private readonly Dictionary<int, Session> activeSessions = new Dictionary<int, Session>();
+        private System.Timers.Timer? monitoringTimer;
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
@@ -29,10 +25,8 @@ namespace Katastata.Services
         [DllImport("user32.dll")]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
-        // Конструктор
-        public AppMonitorService(AppDbContext context) => _context = context;
+        public AppMonitorService(ApiClient apiClient) => _apiClient = apiClient;
 
-        // Начало мониторинга
         public void StartMonitoring(int userId)
         {
             if (monitoringTimer == null)
@@ -43,7 +37,6 @@ namespace Katastata.Services
             }
         }
 
-        // Мониторинг процессов
         private void MonitorProcesses(int userId)
         {
             try
@@ -58,16 +51,19 @@ namespace Katastata.Services
                     {
                         var session = activeSessions[sessionId];
                         session.EndTime = DateTime.Now;
-                        _context.Sessions.Add(session);
-                        _context.SaveChanges();
-                        UpdateStatistics(session);
+                        _apiClient.CreateSession(new SessionCreateRequest
+                        {
+                            UserId = session.UserId,
+                            ProgramId = session.ProgramId,
+                            StartTime = session.StartTime,
+                            EndTime = session.EndTime
+                        });
                         activeSessions.Remove(sessionId);
                     }
                 }
 
                 IntPtr foregroundWindow = GetForegroundWindow();
-                uint fgProcessId;
-                GetWindowThreadProcessId(foregroundWindow, out fgProcessId);
+                GetWindowThreadProcessId(foregroundWindow, out var fgProcessId);
 
                 if (fgProcessId > 0 && currentProcesses.TryGetValue((int)fgProcessId, out var fgProcess) &&
                     !activeSessions.ContainsKey(fgProcess.Id))
@@ -77,173 +73,72 @@ namespace Katastata.Services
 
                     if (!string.IsNullOrEmpty(path))
                     {
-                        var program = _context.Programs.FirstOrDefault(p => p.Path == path) ??
-                                      AddNewProgram(fgProcess);
-                        var newSession = new Session
+                        var program = _apiClient.EnsureProgram(new ProgramSyncRequest
+                        {
+                            Name = fgProcess.ProcessName ?? "Unknown",
+                            Path = path
+                        });
+
+                        activeSessions[fgProcess.Id] = new Session
                         {
                             UserId = userId,
                             ProgramId = program.Id,
                             StartTime = DateTime.Now,
                             EndTime = DateTime.Now
                         };
-                        activeSessions[fgProcess.Id] = newSession;
                     }
                 }
             }
             catch { }
         }
 
-        // Сканирование программ
-        private Program AddNewProgram(Process proc)
-        {
-            if (!_context.Categories.Any(c => c.Id == 1))
-            {
-                _context.Categories.Add(new Models.Category { Id = 1, Name = "Не классифицировано" });
-                _context.SaveChanges();
-            }
-
-            var program = new Program
-            {
-                Name = proc.ProcessName ?? "Unknown",
-                Path = proc.MainModule?.FileName ?? "",
-                CategoryId = 1
-            };
-            _context.Programs.Add(program);
-            _context.SaveChanges();
-            return program;
-        }
-
-
-        // Обновление статистики
-        private void UpdateStatistics(Session session)
-        {
-            var stat = _context.Statistics.FirstOrDefault(s => s.UserId == session.UserId && s.ProgramId == session.ProgramId);
-            if (stat == null)
-            {
-                stat = new Statistics
-                {
-                    UserId = session.UserId,
-                    ProgramId = session.ProgramId,
-                    TotalTime = TimeSpan.Zero,
-                    LastLaunch = null
-                };
-                _context.Statistics.Add(stat);
-            }
-
-            stat.TotalTime += session.EndTime - session.StartTime;
-            stat.LastLaunch = session.StartTime > (stat.LastLaunch ?? DateTime.MinValue) ? session.StartTime : stat.LastLaunch;
-            _context.SaveChanges();
-        }
-
-        // Сканирование запущенный программ
         public void ScanRunningPrograms(int userId)
         {
-            var processes = Process.GetProcesses()
+            var requests = Process.GetProcesses()
                 .Where(p => !string.IsNullOrEmpty(p.MainWindowTitle))
-                .ToList();
-
-            if (!_context.Categories.Any(c => c.Id == 1))
-            {
-                _context.Categories.Add(new Models.Category { Id = 1, Name = "Не классифицировано" });
-                _context.SaveChanges();
-            }
-
-            foreach (var proc in processes)
-            {
-                try
+                .Select(proc =>
                 {
-                    string path = proc.MainModule?.FileName ?? "";
-                    if (string.IsNullOrEmpty(path)) continue;
-
-                    if (!_context.Programs.Any(p => p.Path == path))
+                    try
                     {
-                        _context.Programs.Add(new Program
+                        var path = proc.MainModule?.FileName ?? "";
+                        if (string.IsNullOrEmpty(path))
+                        {
+                            return null;
+                        }
+
+                        return new ProgramSyncRequest
                         {
                             Name = proc.ProcessName ?? "Unknown",
-                            Path = path,
-                            CategoryId = 1
-                        });
+                            Path = path
+                        };
                     }
-                }
-                catch { }
-            }
-            _context.SaveChanges();
-        }
-
-        // Получение списка программ
-        public List<Program> GetAllPrograms(int userId)
-        {
-            return _context.Programs.Include(p => p.Category).ToList();
-        }
-
-        // Получение сессий
-        public List<Session> GetSessions(int userId)
-        {
-            return _context.Sessions
-                .Where(s => s.UserId == userId)
-                .Include(s => s.Program)
-                .ThenInclude(p => p.Category)
-                .OrderByDescending(s => s.StartTime)
-                .ToList();
-        }
-
-        // Получение статистики
-        public List<Statistics> GetStatistics(int userId)
-        {
-            var stats = _context.Statistics
-                .Where(st => st.UserId == userId)
-                .Include(st => st.Program)
+                    catch
+                    {
+                        return null;
+                    }
+                })
+                .Where(x => x != null)
+                .Cast<ProgramSyncRequest>()
                 .ToList();
 
-            return stats
-                .OrderByDescending(st => st.TotalTime)
-                .ToList();
-        }
-
-        // Получение категорий
-        public bool CategoryExists(string name) => _context.Categories.Any(c => c.Name == name);
-
-        public void AddCategory(string name)
-        {
-            _context.Categories.Add(new Katastata.Models.Category { Name = name });
-            _context.SaveChanges();
-        }
-
-        public List<Program> GetProgramsByCategory(int categoryId)
-        {
-            return _context.Programs.Where(p => p.CategoryId == categoryId).ToList();
-        }
-
-        public List<Katastata.Models.Category> GetAllCategories() => _context.Categories.ToList();
-
-        public void UpdateProgram(Program program)
-        {
-            _context.Programs.Update(program);
-            _context.SaveChanges();
-        }
-
-        public void DeleteCategory(int categoryId)
-        {
-            var category = _context.Categories.Find(categoryId);
-            if (category != null)
+            if (requests.Count > 0)
             {
-                _context.Categories.Remove(category);
-                _context.SaveChanges();
+                _apiClient.BulkEnsurePrograms(requests);
             }
         }
 
-        // Удаление пользователя и связанных данных
-        public void DeleteUser(int userId)
-        {
-            var user = _context.Users.Find(userId);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                _context.SaveChanges();
-            }
-        }
+        public List<Program> GetAllPrograms(int userId) => _apiClient.GetPrograms(userId);
+        public List<Session> GetSessions(int userId) => _apiClient.GetSessions(userId);
+        public List<Statistics> GetStatistics(int userId) => _apiClient.GetStatistics(userId).OrderByDescending(st => st.TotalTime).ToList();
 
-        // Экспорт статистики в Excel
+        public bool CategoryExists(string name) => _apiClient.CategoryExists(name);
+        public void AddCategory(string name) => _apiClient.AddCategory(name);
+        public List<Program> GetProgramsByCategory(int categoryId) => _apiClient.GetProgramsByCategory(categoryId);
+        public List<Category> GetAllCategories() => _apiClient.GetCategories();
+        public void UpdateProgram(Program program) => _apiClient.UpdateProgram(program);
+        public void DeleteCategory(int categoryId) => _apiClient.DeleteCategory(categoryId);
+        public void DeleteUser(int userId) => _apiClient.DeleteUser(userId);
+
         public void ExportStatisticsToExcel(int userId, string filePath)
         {
             var stats = GetStatistics(userId);
@@ -261,21 +156,19 @@ namespace Katastata.Services
 
                 SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
 
-                // Заголовки
                 Row headerRow = new Row();
                 headerRow.Append(CreateTextCell("Программа"));
                 headerRow.Append(CreateTextCell("Общее время"));
                 headerRow.Append(CreateTextCell("Последний запуск"));
                 sheetData.Append(headerRow);
 
-                // Данные
                 foreach (var stat in stats)
                 {
                     Row dataRow = new Row();
                     dataRow.Append(CreateTextCell(stat.Program?.Name ?? "Unknown"));
                     dataRow.Append(CreateTextCell(stat.TotalTime.ToString()));
                     dataRow.Append(CreateTextCell(stat.LastLaunch?.ToString() ?? "N/A"));
-                    dataRow.Append(CreateTextCell(stat.UserId.ToString() ?? "Guest"));
+                    dataRow.Append(CreateTextCell(stat.UserId.ToString()));
                     sheetData.Append(dataRow);
                 }
 
@@ -296,18 +189,18 @@ namespace Katastata.Services
                 MainDocumentPart mainPart = document.AddMainDocumentPart();
                 mainPart.Document = new Document();
                 Body body = mainPart.Document.AppendChild(new Body());
-                DocumentFormat.OpenXml.Wordprocessing.Table table = new DocumentFormat.OpenXml.Wordprocessing.Table();
+                Table table = new Table();
                 TableRow headerRow = new TableRow();
-                headerRow.Append(new TableCell(new Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Программа")))));
-                headerRow.Append(new TableCell(new Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Общее время")))));
-                headerRow.Append(new TableCell(new Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text("Последний запуск")))));
+                headerRow.Append(new TableCell(new Paragraph(new Run(new Text("Программа")))));
+                headerRow.Append(new TableCell(new Paragraph(new Run(new Text("Общее время")))));
+                headerRow.Append(new TableCell(new Paragraph(new Run(new Text("Последний запуск")))));
                 table.Append(headerRow);
                 foreach (var stat in stats)
                 {
                     TableRow dataRow = new TableRow();
-                    dataRow.Append(new TableCell(new Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text(stat.Program?.Name ?? "Unknown")))));
-                    dataRow.Append(new TableCell(new Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text(stat.TotalTime.ToString())))));
-                    dataRow.Append(new TableCell(new Paragraph(new DocumentFormat.OpenXml.Wordprocessing.Run(new DocumentFormat.OpenXml.Wordprocessing.Text(stat.LastLaunch?.ToString() ?? "N/A")))));
+                    dataRow.Append(new TableCell(new Paragraph(new Run(new Text(stat.Program?.Name ?? "Unknown")))));
+                    dataRow.Append(new TableCell(new Paragraph(new Run(new Text(stat.TotalTime.ToString())))));
+                    dataRow.Append(new TableCell(new Paragraph(new Run(new Text(stat.LastLaunch?.ToString() ?? "N/A")))));
                     table.Append(dataRow);
                 }
                 body.Append(table);

@@ -1,24 +1,17 @@
-﻿using System;
-using System.IO;
+﻿using Katastata.Services;
+using System;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
-using Katastata.Data;
 
 namespace Katastata
 {
     public partial class App : System.Windows.Application
     {
-        private const string DbFileName = "katastata.db";
+        private const string DefaultApiUrl = "http://localhost:5099";
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DbFileName);
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite($"Data Source={dbPath}")
-                .Options;
-
-            using (var ctx = new AppDbContext(options))
-                ctx.Database.EnsureCreated();
+            var apiUrl = Environment.GetEnvironmentVariable("KATASTATA_API_URL") ?? DefaultApiUrl;
+            var apiClient = new ApiClient(apiUrl);
 
             int maxTries = 1;
             int tries = 0;
@@ -26,16 +19,16 @@ namespace Katastata
 
             while (!authenticated && tries < maxTries)
             {
-                var auth = new AuthWindow(options);
+                var auth = new AuthWindow(apiClient);
                 var dialogResult = auth.ShowDialog();
 
                 if (dialogResult == true)
                 {
                     authenticated = true;
-                    var mainWindow = new MainWindow(auth.LoggedInUserId, options);
-                    Current.MainWindow = mainWindow;  // Установите явно для безопасности
+                    var mainWindow = new MainWindow(auth.LoggedInUserId, apiClient);
+                    Current.MainWindow = mainWindow;
                     mainWindow.Show();
-                    Current.ShutdownMode = ShutdownMode.OnMainWindowClose;  // Верните нормальный режим
+                    Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
                 }
                 tries++;
             }

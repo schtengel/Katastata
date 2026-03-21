@@ -1,8 +1,6 @@
-﻿using Katastata.Data;
-using Katastata.Models;
+﻿using Katastata.Models;
 using Katastata.Services;
 using Katastata.ViewModels;
-using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows;
@@ -20,11 +18,10 @@ namespace Katastata
 
         private Dictionary<int, ProgramDetailsWindow> _openDetailsWindows = new Dictionary<int, ProgramDetailsWindow>();
 
-        public MainWindow(int userId, DbContextOptions<AppDbContext> options)
+        public MainWindow(int userId, ApiClient apiClient)
         {
             InitializeComponent();
-            var db = new AppDbContext(options);
-            var service = new AppMonitorService(db);
+            var service = new AppMonitorService(apiClient);
             DataContext = new MainViewModel(service, userId);
             HighlightActiveTheme("Dark");
 
@@ -45,11 +42,7 @@ namespace Katastata
         public MainWindow()
         {
             InitializeComponent();
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                            .UseSqlite("Data Source=katastata.db")
-                            .Options;
-            var dbContext = new AppDbContext(options);
-            var viewModel = new AppMonitorService(dbContext); // передаём только контекст
+            var viewModel = new AppMonitorService(new ApiClient("http://localhost:5099"));
             DataContext = viewModel;
         }
 

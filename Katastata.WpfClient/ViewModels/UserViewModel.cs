@@ -1,42 +1,37 @@
-﻿using Katastata.Data;
-using Katastata.Helpers;
-using Katastata.Models;
+﻿using Katastata.Contracts;
+using Katastata.Services;
 using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security;
-using System.Windows;
 using System.Windows.Input;
 
 namespace Katastata.ViewModels
 {
     public class UserViewModel : INotifyPropertyChanged
     {
-        private readonly AppDbContext _db;
-        public event Action<int> LoginSuccessful;
+        private readonly ApiClient _apiClient;
+        public event Action<int>? LoginSuccessful;
 
-        private string _loginMessage;
+        private string _loginMessage = string.Empty;
         public string LoginMessage
         {
             get => _loginMessage;
             set { _loginMessage = value; OnPropertyChanged(); }
         }
 
-        public string RegisterUsername { get; set; }
+        public string RegisterUsername { get; set; } = string.Empty;
         public SecureString RegisterPassword { get; set; } = new SecureString();
         public SecureString RegisterPasswordConfirm { get; set; } = new SecureString();
-        public string LoginUsername { get; set; }
+        public string LoginUsername { get; set; } = string.Empty;
         public SecureString LoginPassword { get; set; } = new SecureString();
 
         public ICommand RegisterCommand { get; }
         public ICommand LoginCommand { get; }
 
-        public UserViewModel() { }
-
-        public UserViewModel(AppDbContext db)
+        public UserViewModel(ApiClient apiClient)
         {
-            _db = db;
+            _apiClient = apiClient;
             RegisterCommand = new RelayCommand(_ => RegisterUser());
             LoginCommand = new RelayCommand(_ => LoginUser());
         }
@@ -78,22 +73,20 @@ namespace Katastata.ViewModels
                 return;
             }
 
-            if (_db.Users.Any(u => u.Username == RegisterUsername))
+            var response = _apiClient.Register(new AuthRequest
             {
-                LoginMessage = "Такой пользователь уже существует.";
+                Username = RegisterUsername,
+                Password = passwordString,
+                PcName = Environment.MachineName
+            });
+
+            if (!response.Success)
+            {
+                LoginMessage = response.Message;
                 return;
             }
 
-            var user = new User
-            {
-                Username = RegisterUsername,
-                PasswordHash = PasswordHelper.HashPassword(passwordString),
-                PCName = Environment.MachineName
-            };
-            _db.Users.Add(user);
-            _db.SaveChanges();
-
-            LoginSuccessful?.Invoke(user.Id);
+            LoginSuccessful?.Invoke(response.UserId);
         }
 
         private void LoginUser()
@@ -114,20 +107,23 @@ namespace Katastata.ViewModels
                 return;
             }
 
-            var hash = PasswordHelper.HashPassword(passwordString);
-            var user = _db.Users.FirstOrDefault(u => u.Username == LoginUsername && u.PasswordHash == hash);
-
-            if (user == null)
+            var response = _apiClient.Login(new AuthRequest
             {
-                LoginMessage = "Неверный логин или пароль.";
+                Username = LoginUsername,
+                Password = passwordString
+            });
+
+            if (!response.Success)
+            {
+                LoginMessage = response.Message;
                 return;
             }
 
-            LoginSuccessful?.Invoke(user.Id);
+            LoginSuccessful?.Invoke(response.UserId);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

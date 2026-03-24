@@ -1,0 +1,66 @@
+﻿<UserControl x:Class="Katastata.UserControls.LoginPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource WindowBackgroundBrush}" Loaded="UserControl_Loaded">
+
+    <Grid x:Name="RootGrid" Margin="20">
+        
+        <Border Background="{DynamicResource WindowBackgroundBrush}"
+                CornerRadius="12"
+                Padding="20"
+                Width="380"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <StackPanel>
+
+                <!-- Заголовок -->
+                <TextBlock Text="Вход"
+                           Foreground="{DynamicResource TextForegroundBrush}"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Margin="0 0 0 10"
+                           HorizontalAlignment="Center"/>
+
+                <!-- Метка и поле логина -->
+                <TextBlock Text="Имя пользователя" 
+                           Foreground="{DynamicResource TextForegroundBrush}"
+                           FontSize="12" Margin="0,6,0,4"/>
+                <TextBox Text="{Binding LoginUsername, Mode=TwoWay}"
+                         Name="UsernameTextBox"
+                         Height="36"
+                         Background="{DynamicResource WindowBackgroundBrush}"
+                         Style="{StaticResource ThemeTextBoxStyle}"
+                         Foreground="{DynamicResource TextForegroundBrush}"
+                         BorderBrush="{DynamicResource BorderBrush}"
+                         />
+
+                <!-- Метка и поле пароля -->
+                <TextBlock Text="Пароль" 
+                           Foreground="{DynamicResource TextForegroundBrush}"
+                           FontSize="12" Margin="0,12,0,4"/>
+                <PasswordBox Height="36"
+                             Background="{DynamicResource WindowBackgroundBrush}"
+                             Style="{StaticResource ThemePasswordBoxStyle}"
+                             Foreground="{DynamicResource TextForegroundBrush}"
+                             BorderBrush="{DynamicResource BorderBrush}"
+                             PasswordChanged="LoginPasswordBox_PasswordChanged"/>
+
+                <!-- Кнопка входа -->
+                <Button Content="Войти"
+                        Command="{Binding LoginCommand}"
+                        Style="{StaticResource ThemeButtonStyle}"
+                        Width="340"
+                        Margin="0,40,0,0"
+                        HorizontalAlignment="Stretch"/>
+
+                <TextBlock Text="{Binding LoginMessage, Mode=OneWay}"
+                           Foreground="OrangeRed"
+                           FontSize="13"
+                           Margin="0,10,0,0"
+                           TextAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</UserControl>
+ 

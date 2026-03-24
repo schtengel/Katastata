@@ -1,0 +1,32 @@
+﻿<Window x:Class="Katastata.ExportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Выберите формат" Height="150" Width="250"
+        WindowStartupLocation="CenterOwner"
+        Icon="/Assets/Logo/MainLogo.png"
+        ResizeMode="NoResize"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        WindowStyle="None">
+
+    
+    <Border BorderThickness="1"
+            BorderBrush="{DynamicResource BorderBrush}">
+    <StackPanel Margin="20" VerticalAlignment="Center">
+        <TextBlock Text="Выберите формат экспорта:" 
+                   HorizontalAlignment="Center"
+                   FontWeight="Bold"
+                   Foreground="{DynamicResource AccentBrush}"
+                   Margin="0,0,0,10"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="Word" 
+                    Width="80" Margin="5" 
+                    Style="{DynamicResource ThemeButtonStyle}"
+                    Click="Word_Click"/>
+            <Button Content="Excel" 
+                    Style="{DynamicResource ThemeButtonStyle}"
+                    Width="80" Margin="5" 
+                    Click="Excel_Click"/>
+        </StackPanel>
+    </StackPanel>
+    </Border>
+</Window>

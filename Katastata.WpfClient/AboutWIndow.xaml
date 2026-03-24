@@ -1,0 +1,32 @@
+﻿<Window x:Class="Katastata.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="О программе" Height="450" Width="600"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        WindowStartupLocation="CenterOwner">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+            <Border Background="{DynamicResource WindowBackgroundBrush}"
+                    CornerRadius="8"
+                    Padding="15">
+                <StackPanel>
+                    <Image Source="/Assets/Logo/MainLogo.png" Width="100" Height="100" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Katastata" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextForegroundBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Версия 1.0" FontSize="14" Foreground="{DynamicResource DisabledBrush}" HorizontalAlignment="Center" Margin="0,5,0,20"/>
+                    <TextBlock Text="Описание:" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextForegroundBrush}"/>
+                    <TextBlock Text="Katastata — приложение для мониторинга использования программ на ПК. Оно отслеживает сессии, рассчитывает статистику времени и запусков, позволяет категоризировать приложения и экспортировать данные." Foreground="{DynamicResource TextForegroundBrush}" TextWrapping="Wrap" Margin="0,5,0,20"/>
+                    <TextBlock Text="Создатель:" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextForegroundBrush}"/>
+                    <TextBlock Text="Студент Муслимов Эльмир, курсовая работа по программированию на C# с WPF и MVVM." Foreground="{DynamicResource TextForegroundBrush}" TextWrapping="Wrap" Margin="0,5,0,20"/>
+                    <TextBlock Text="Как пользоваться:" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextForegroundBrush}"/>
+                    <StackPanel Margin="0,5,0,0">
+                        <TextBlock Text="1. Зарегистрируйтесь или войдите в аккаунт." Foreground="{DynamicResource TextForegroundBrush}"/>
+                        <TextBlock Text="2. Нажмите 'Обновить' для сканирования программ." Foreground="{DynamicResource TextForegroundBrush}"/>
+                        <TextBlock Text="3. Просмотрите плитки программ, кликните для деталей (сессии, статистика)." Foreground="{DynamicResource TextForegroundBrush}"/>
+                        <TextBlock Text="4. В настройках создайте категории, экспортируйте данные, измените тему." Foreground="{DynamicResource TextForegroundBrush}"/>
+                        <TextBlock Text="5. Закройте окно — приложение работает в фоне (значок в трее)." Foreground="{DynamicResource TextForegroundBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

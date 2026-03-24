@@ -1,42 +1,14 @@
-﻿using Katastata.Services;
-using System;
+﻿using System.Configuration;
+using System.Data;
 using System.Windows;
 
-namespace Katastata
+namespace Katastata.WpfClient
 {
-    public partial class App : System.Windows.Application
+    /// <summary>
+    /// Interaction logic for App.xaml
+    /// </summary>
+    public partial class App : Application
     {
-        private const string DefaultApiUrl = "http://localhost:5099";
-
-        private void Application_Startup(object sender, StartupEventArgs e)
-        {
-            var apiUrl = Environment.GetEnvironmentVariable("KATASTATA_API_URL") ?? DefaultApiUrl;
-            var apiClient = new ApiClient(apiUrl);
-
-            int maxTries = 1;
-            int tries = 0;
-            bool authenticated = false;
-
-            while (!authenticated && tries < maxTries)
-            {
-                var auth = new AuthWindow(apiClient);
-                var dialogResult = auth.ShowDialog();
-
-                if (dialogResult == true)
-                {
-                    authenticated = true;
-                    var mainWindow = new MainWindow(auth.LoggedInUserId, apiClient);
-                    Current.MainWindow = mainWindow;
-                    mainWindow.Show();
-                    Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-                }
-                tries++;
-            }
-
-            if (!authenticated)
-            {
-                Shutdown();
-            }
-        }
     }
+
 }

@@ -9,5 +9,5 @@
 4. Поддержка нескольких пользователей
 5. Разделение программ на категории
 
-Создано - @katzilipsiz
-telegram - @everbodybelikeme
+Создано - @schtengel
+telegram - @EngelimFleisch

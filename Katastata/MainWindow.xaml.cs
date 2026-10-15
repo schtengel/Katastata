@@ -17,16 +17,17 @@ namespace Katastata
     {
         private NotifyIcon trayIcon;
         private bool isFullscreen = false;
+        
+        private readonly AppMonitorService _service;
 
         private Dictionary<int, ProgramDetailsWindow> _openDetailsWindows = new Dictionary<int, ProgramDetailsWindow>();
 
         public MainWindow(int userId, DbContextOptions<AppDbContext> options)
         {
             InitializeComponent();
-            var db = new AppDbContext(options);
-            var service = new AppMonitorService(db);
-            DataContext = new MainViewModel(service, userId);
-            HighlightActiveTheme("Dark");
+            _service = new AppMonitorService(options);
+            DataContext = new MainViewModel(_service, userId);
+            HighlightActiveTheme("Light"); // App.xaml по умолчанию грузит Light.xaml
 
             trayIcon = new NotifyIcon();
             trayIcon.Icon = new Icon(System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Assets/Logo/app.ico")).Stream);
@@ -39,18 +40,15 @@ namespace Katastata
             contextMenu.Items.Add("Показать", null, (s, e) => TrayIcon_Click());
             contextMenu.Items.Add("Выход", null, (s, e) => System.Windows.Application.Current.Shutdown());
             trayIcon.ContextMenuStrip = contextMenu;
-        }
-
-        // Для дизайнера оставим пустой ctor
-        public MainWindow()
-        {
-            InitializeComponent();
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                            .UseSqlite("Data Source=katastata.db")
-                            .Options;
-            var dbContext = new AppDbContext(options);
-            var viewModel = new AppMonitorService(dbContext); // передаём только контекст
-            DataContext = viewModel;
+            
+            
+            // при любом выходе: дописать текущие сессии и убрать иконку из трея
+            System.Windows.Application.Current.Exit += (s, e) =>
+            {
+                _service.StopMonitoring();
+                trayIcon.Visible = false;
+                trayIcon.Dispose();
+            };
         }
 
         private void ApplyTheme(string themePath)
@@ -212,19 +210,15 @@ namespace Katastata
 
         private void SortByName_Click(object sender, RoutedEventArgs e)
         {
-            var currentMode = (string)DataContext?.GetType().GetProperty("SortMode")?.GetValue(DataContext);
-            string newMode = currentMode == "NameAsc" ? "NameDesc" : "NameAsc";
-            DataContext?.GetType().GetMethod("set_SortMode")?.Invoke(DataContext, new object[] { newMode });
+            if (DataContext is MainViewModel vm)
+                vm.SortMode = vm.SortMode == "NameAsc" ? "NameDesc" : "NameAsc";
         }
 
         private void SortByLastLaunch_Click(object sender, RoutedEventArgs e)
         {
-            var currentMode = (string)DataContext?.GetType().GetProperty("SortMode")?.GetValue(DataContext);
-            string newMode = currentMode == "LastLaunchAsc" ? "LastLaunchDesc" : "LastLaunchAsc";
-            DataContext?.GetType().GetMethod("set_SortMode")?.Invoke(DataContext, new object[] { newMode });
+            if (DataContext is MainViewModel vm)
+                vm.SortMode = vm.SortMode == "LastLaunchAsc" ? "LastLaunchDesc" : "LastLaunchAsc";
         }
-
-
 
         private void ProgramTile_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -246,6 +240,7 @@ namespace Katastata
                 detailsWindow.Closed += (s, ev) =>
                 {
                     _openDetailsWindows.Remove(program.Id);
+                    vm.Reload(); // подхватить смену имени/категории
                 };
 
                 _openDetailsWindows[program.Id] = detailsWindow;

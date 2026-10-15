@@ -169,7 +169,13 @@ namespace Katastata.ViewModels
         {
             var settingsWindow = new SettingsWindow(_service, _userId);
             settingsWindow.ShowDialog();
+
+            var selectedId = SelectedCategory?.Id;
+            LoadCategories();
+            SelectedCategory = Categories.FirstOrDefault(c => c.Id == selectedId) ?? Categories[0];
         }
+
+        public void Reload() => ApplyFilterAndSort();
 
         private void ExportStatisticsExcel()
         {

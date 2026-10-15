@@ -12,7 +12,11 @@ namespace Katastata
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DbFileName);
+            Directory.CreateDirectory(Katastata.Helpers.AppPaths.DataDir);
+            var legacyDb = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DbFileName);
+            if (!File.Exists(Katastata.Helpers.AppPaths.DbPath) && File.Exists(legacyDb))
+                File.Copy(legacyDb, Katastata.Helpers.AppPaths.DbPath);
+            var dbPath = Katastata.Helpers.AppPaths.DbPath;
             var options = new DbContextOptionsBuilder<AppDbContext>()
                 .UseSqlite($"Data Source={dbPath}")
                 .Options;

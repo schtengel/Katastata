@@ -2,8 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Katastata.Helpers"
-        Title="{Binding EditableProgramName}" Height="650" Width="900"
-        MinHeight="550" MinWidth="700"
+        Title="{Binding EditableProgramName}"
+        Height="680" Width="860"
+        MinHeight="560" MinWidth="700"
         Icon="/Assets/Logo/MainLogo.png"
         Background="{DynamicResource WindowBackgroundBrush}"
         WindowStartupLocation="CenterOwner">
@@ -11,151 +12,109 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*" MinHeight="200"/>
-            <!-- Гибкая высота для DataGrid -->
-            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Заголовок с иконкой и названием -->
-        <Border Grid.Row="0"
-                Background="{DynamicResource AccentBrush}"
-                CornerRadius="8"
-                Padding="15"
-                Margin="0,0,0,15">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Image Width="64" Height="64" Margin="15,0,15,0">
-                    <Image.Source>
-                        <Binding Path="ProgramPath" Converter="{StaticResource PathToIconConverter}"/>
-                    </Image.Source>
-                </Image>
-
-                <!-- TextBox для редактирования -->
-                <TextBox
-                    Text="{Binding EditableProgramName, UpdateSourceTrigger=PropertyChanged}"
-                    Foreground="{DynamicResource TextForegroundBrush}"
-                    FontSize="24"
-                    FontWeight="Bold"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Left"
-                    Width="400"
-                    Margin="0,0,10,0"
-                    BorderThickness="0"
-                    Background="Transparent"
-                    Padding="0"
-                    TextWrapping="NoWrap"
-                    KeyDown="TextBox_KeyDown"/>
-
-                <!-- Кнопка сохранения -->
-                <Button
-                    Content="Сохранить"
-                    Command="{Binding SaveNameCommand}"
-                    Style="{StaticResource ThemeButtonStyle}"
-                    VerticalAlignment="Center"/>
-            </StackPanel>
+        <Border Background="{DynamicResource CardBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1" CornerRadius="8" Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="56" Height="56" CornerRadius="8" Background="{DynamicResource WindowBackgroundBrush}">
+                    <Image Width="32" Height="32">
+                        <Image.Source>
+                            <Binding Path="ProgramPath" Converter="{StaticResource PathToIconConverter}"/>
+                        </Image.Source>
+                    </Image>
+                </Border>
+                <TextBox Grid.Column="1"
+                         Text="{Binding EditableProgramName, UpdateSourceTrigger=PropertyChanged}"
+                         Foreground="{DynamicResource TextForegroundBrush}"
+                         FontSize="22" FontWeight="SemiBold"
+                         VerticalAlignment="Center"
+                         Margin="14,0,12,0"
+                         BorderThickness="0" Background="Transparent"
+                         KeyDown="TextBox_KeyDown"/>
+                <Button Grid.Column="2" Content="Сохранить имя"
+                        Command="{Binding SaveNameCommand}"
+                        Style="{StaticResource ThemeButtonStyle}"
+                        Width="140" VerticalAlignment="Center"/>
+            </Grid>
         </Border>
 
-        <!-- Статистика в карточках -->
-        <Grid Grid.Row="1" Margin="0,0,0,15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <!-- Первая карточка — 50% ширины -->
-                <ColumnDefinition Width="*"/>
-                <!-- Вторая карточка — 50% ширины -->
-            </Grid.ColumnDefinitions>
-
-            <!-- Карточка "Общее время использования" -->
-            <Border Grid.Column="0"
-            Style="{StaticResource StatisticCardStyle}"
-            Margin="10,0,10,0">
+        <UniformGrid Grid.Row="1" Columns="2" Margin="0,12,0,12">
+            <Border Style="{StaticResource StatisticCardStyle}" Margin="0,0,6,0">
                 <StackPanel>
-                    <TextBlock Text="Общее время использования"
-                       Foreground="{DynamicResource TextForegroundBrush}"
-                       FontSize="14"
-                       FontWeight="SemiBold"/>
+                    <TextBlock Text="Общее время" Foreground="{DynamicResource DisabledBrush}" FontSize="13"/>
                     <TextBlock Text="{Binding TotalTime, Converter={StaticResource TimeSpanToStringConverter}}"
-                       Foreground="{DynamicResource AccentBrushActive}"
-                       FontSize="18"
-                       FontWeight="Bold"
-                       Margin="0,5,0,0"/>
+                               FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
-
-            <!-- Карточка "Последний запуск" -->
-            <Border Grid.Column="1"
-            Style="{StaticResource StatisticCardStyle}"
-            Margin="10,0,10,0">
+            <Border Style="{StaticResource StatisticCardStyle}" Margin="6,0,0,0">
                 <StackPanel>
-                    <TextBlock Text="Последний запуск"
-                       Foreground="{DynamicResource TextForegroundBrush}"
-                       FontSize="14"
-                       FontWeight="SemiBold"/>
+                    <TextBlock Text="Последний запуск" Foreground="{DynamicResource DisabledBrush}" FontSize="13"/>
                     <TextBlock Text="{Binding LastLaunch, StringFormat=dd.MM.yyyy HH:mm}"
-                       FontWeight="Bold"
-                       Foreground="{DynamicResource AccentBrushActive}"
-                       FontSize="18"
-                       Margin="0,5,0,0"/>
+                               FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
-        </Grid>
+        </UniformGrid>
 
-        <!-- DataGrid с прокруткой -->
-        <DataGrid Grid.Row="2"
-                  ItemsSource="{Binding Sessions}"
-                  AutoGenerateColumns="False"
-                  IsReadOnly="True"
-                  GridLinesVisibility="None"
-                  HeadersVisibility="Column"
-                  RowHeight="40"
-                  VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Auto"
-                  Background="{DynamicResource WindowBackgroundBrush}">
+        <Border Grid.Row="2"
+                Background="{DynamicResource CardBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1" CornerRadius="8" Padding="4">
+            <DataGrid ItemsSource="{Binding Sessions}"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      GridLinesVisibility="None" HeadersVisibility="Column"
+                      RowHeight="40"
+                      Background="Transparent" BorderThickness="0">
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Foreground" Value="{DynamicResource DisabledBrush}"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Padding" Value="12,8"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                    </Style>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="12,0"/>
+                        <Setter Property="Foreground" Value="{DynamicResource TextForegroundBrush}"/>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Начало" Binding="{Binding StartTime, StringFormat=dd.MM.yyyy HH:mm}" Width="*"/>
+                    <DataGridTextColumn Header="Конец" Binding="{Binding EndTime, StringFormat=dd.MM.yyyy HH:mm}" Width="*"/>
+                    <DataGridTextColumn Header="Длительность" Binding="{Binding Duration, Converter={StaticResource TimeSpanToStringConverter}}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
 
-
-            <!-- Стили -->
-            <DataGrid.Resources>
-                <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="Foreground" Value="{DynamicResource TextForegroundBrush}"/>
-                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                    <Setter Property="FontWeight" Value="SemiBold"/>
-                    <Setter Property="Padding" Value="10,5"/>
-                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                </Style>
-                <Style TargetType="DataGridRow">
-                    <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
-                    <Setter Property="Foreground" Value="{DynamicResource TextForegroundBrush}"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsFocused" Value="True">
-                            <Setter Property="Background" Value="#AD7636"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.Resources>
-
-            <!-- Колонки -->
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Начало" Binding="{Binding StartTime, StringFormat=dd.MM.yyyy HH:mm}" Width="*"/>
-                <DataGridTextColumn Header="Конец" Binding="{Binding EndTime, StringFormat=dd.MM.yyyy HH:mm}" Width="*"/>
-                <DataGridTextColumn Header="Длительность" Binding="{Binding Duration, Converter={StaticResource TimeSpanToStringConverter}}" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
-
-        <!-- Категория и кнопка сохранения -->
-        <Border Grid.Row="3" Height="Auto" Margin="0,0,0,15">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Категория:" Foreground="{DynamicResource TextForegroundBrush}" VerticalAlignment="Center"/>
-
-                <ComboBox ItemsSource="{Binding Categories}"
+        <Border Grid.Row="3" Style="{StaticResource StatisticCardStyle}" Margin="0,12,0,0" Padding="12,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Категория" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding Categories}"
                           SelectedItem="{Binding SelectedCategory}"
                           DisplayMemberPath="Name"
-                          Height="35"
-                          Margin="10,0,0,0"
-                          Width="200"/>
-                <Button Content="Сохранить" Command="{Binding SaveCategoryCommand}" Style="{StaticResource ThemeButtonStyle}" Margin="10,0,0,0"/>
-            </StackPanel>
+                          Style="{StaticResource ThemeComboBoxStyle}"/>
+                <Button Grid.Column="2" Content="Сохранить"
+                        Command="{Binding SaveCategoryCommand}"
+                        Style="{StaticResource ThemeButtonStyle}"
+                        Width="120" Margin="10,0,0,0"/>
+            </Grid>
         </Border>
     </Grid>
 </Window>

@@ -114,13 +114,18 @@ namespace Katastata.ViewModels
                 return;
             }
 
-            var hash = PasswordHelper.HashPassword(passwordString);
-            var user = _db.Users.FirstOrDefault(u => u.Username == LoginUsername && u.PasswordHash == hash);
+            var user = _db.Users.FirstOrDefault(u => u.Username == LoginUsername);
 
-            if (user == null)
+            if (user == null || !PasswordHelper.Verify(passwordString, user.PasswordHash, out bool needsRehash))
             {
                 LoginMessage = "Неверный логин или пароль.";
                 return;
+            }
+
+            if (needsRehash)
+            {
+                user.PasswordHash = PasswordHelper.HashPassword(passwordString);
+                _db.SaveChanges();
             }
 
             LoginSuccessful?.Invoke(user.Id);

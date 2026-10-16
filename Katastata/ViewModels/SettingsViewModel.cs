@@ -95,6 +95,12 @@ namespace Katastata.ViewModels
                 return;
 
             var categoryId = (int)parameter;
+            
+            if (categoryId == 1)
+            {
+                System.Windows.MessageBox.Show("Системную категорию удалить нельзя.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             try
             {

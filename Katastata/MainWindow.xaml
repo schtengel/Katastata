@@ -4,237 +4,179 @@
         xmlns:local="clr-namespace:Katastata.Helpers"
         Title="Katastata"
         Width="1100" Height="700"
-        MinWidth="800" MinHeight="500"
+        MinWidth="860" MinHeight="520"
         WindowStartupLocation="CenterScreen"
-        Background="{DynamicResource WindowBackgroundBrush}" 
+        Background="{DynamicResource WindowBackgroundBrush}"
         Icon="/Assets/Logo/MainLogo.png"
-        WindowStyle="None"   
+        WindowStyle="None"
         ResizeMode="CanResizeWithGrip">
 
     <Grid>
-        <!-- Верхний бар -->
-        <Border Background="{DynamicResource AccentBrush}" 
-                Height="50" VerticalAlignment="Top"
+        <Border Background="{DynamicResource CardBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="0,0,0,1"
+                Height="48"
+                VerticalAlignment="Top"
                 MouseLeftButtonDown="TopBar_MouseLeftButtonDown">
-            <DockPanel>
-                <Image Source="/Assets/Logo/TextLogo.png"
-                       Margin="20 10"/>
+            <Grid Margin="16,0,8,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <!-- Кнопки управления окном -->
-                <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                DockPanel.Dock="Right"
-                                Margin="0,0,10,0">
+                <Image Grid.Column="0"
+                       Source="/Assets/Logo/TextLogo.png"
+                       Height="22"
+                       VerticalAlignment="Center"
+                       Stretch="Uniform"/>
 
-                    <Button Content="—"
-                            Style="{DynamicResource ThemeSymbolButtonStyle}"
-                            Click="Minimize_Click"
-                            Cursor="Hand"/>
-
-                    <Button x:Name="FullscreenBtn"
-                            Content="🗖"
-                            Style="{StaticResource ThemeSymbolButtonStyle}"
-                            Click="FullscreenBtn_Click"/>
-                    
-                    <Button Content="✕"
-                            Style="{DynamicResource ThemeSymbolButtonStyle}"
-                            Click="Close_Click"
-                            Cursor="Hand"/>
-                </StackPanel>
-
-                <!-- Кнопки справа -->
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center"
-                            DockPanel.Dock="Right"
-                            Margin="0,0,15,0">
-                    
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button x:Name="LogoutBtn"
-                            Content="→ Выйти"
+                            Content="Выйти"
                             Style="{DynamicResource ThemeSymbolButtonStyle}"
-                            Width="120"
+                            Width="72"
                             ToolTip="Выйти с аккаунта"
-                            Margin="0,0,5,0"
                             Click="Logout_Click"/>
-                    
                     <Button x:Name="LightThemeBtn"
                             Content="☀"
                             ToolTip="Светлая тема"
                             Style="{DynamicResource ThemeSymbolButtonStyle}"
                             Click="LightTheme_Click"/>
-                    
                     <Button x:Name="DarkThemeBtn"
                             Content="🌙"
                             ToolTip="Темная тема"
                             Style="{DynamicResource ThemeSymbolButtonStyle}"
                             Click="DarkTheme_Click"/>
-                    
                 </StackPanel>
-            </DockPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                    <Button Content="—" Style="{DynamicResource ThemeSymbolButtonStyle}" Click="Minimize_Click"/>
+                    <Button x:Name="FullscreenBtn" Content="🗖" Style="{DynamicResource ThemeSymbolButtonStyle}" Click="FullscreenBtn_Click"/>
+                    <Button Content="✕" Style="{DynamicResource ThemeSymbolButtonStyle}" Click="Close_Click"/>
+                </StackPanel>
+            </Grid>
         </Border>
 
-        <!-- Контент -->
-        <Grid Margin="20,70,20,20">
+        <Grid Margin="20,64,20,16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Панель управления -->
-            <StackPanel Orientation="Horizontal"
-                        Grid.Row="0"
-                        HorizontalAlignment="Left"
-                        Margin="0,0,0,15">
-                
-                <Button Content="⟳ Обновить"
-                        Command="{Binding ScanCommand}"
-                        Style="{DynamicResource ThemeButtonStyle}"
-                        Click="ScannerBtn_Click"/>
-                <TextBlock x:Name="ScanText"
-                           Margin="20"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           Foreground="#55aa11"/>
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Обновить"
+                            Command="{Binding ScanCommand}"
+                            Style="{DynamicResource ThemeButtonStyle}"
+                            Width="120"
+                            Click="ScannerBtn_Click"/>
+                    <TextBlock x:Name="ScanText"
+                               Margin="12,0,0,0"
+                               VerticalAlignment="Center"
+                               FontSize="14"
+                               Foreground="#FF107C10"/>
+                </StackPanel>
 
-            <StackPanel Orientation="Horizontal"
-            Grid.Row="0"
-            HorizontalAlignment="Right"
-            Margin="0,0,0,20">
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <ComboBox x:Name="CategoryFilterCombo"
+                              Width="180" Height="32"
+                              Margin="0,0,8,0"
+                              ItemsSource="{Binding Categories}"
+                              SelectedItem="{Binding SelectedCategory, UpdateSourceTrigger=PropertyChanged}"
+                              DisplayMemberPath="Name"
+                              Style="{StaticResource ThemeComboBoxStyle}"
+                              VerticalAlignment="Center"/>
+                    <Button x:Name="SortByNameBtn"
+                            Content="Ab"
+                            Style="{StaticResource ThemeSymbolButtonStyle}"
+                            ToolTip="Сортировка по имени"
+                            Click="SortByName_Click"/>
+                    <Button x:Name="SortByLastLaunchBtn"
+                            Content="🕒"
+                            Style="{StaticResource ThemeSymbolButtonStyle}"
+                            ToolTip="Сортировка по последнему запуску"
+                            Click="SortByLastLaunch_Click"/>
+                    <Button Content="⚙"
+                            Command="{Binding OpenSettingsCommand}"
+                            Style="{DynamicResource ThemeSymbolButtonStyle}"
+                            ToolTip="Настройки"/>
+                    <Button Content="?"
+                            Command="{Binding OpenAboutCommand}"
+                            Style="{StaticResource ThemeSymbolButtonStyle}"
+                            ToolTip="О программе"/>
+                </StackPanel>
+            </Grid>
 
-                <ComboBox
-                    x:Name="CategoryFilterCombo"
-                    Width="180"
-                    Height="40"
-                    Margin="0,0,12,0"
-                    ItemsSource="{Binding Categories}"
-                    SelectedItem="{Binding SelectedCategory, UpdateSourceTrigger=PropertyChanged}"
-                    DisplayMemberPath="Name"
-                    VerticalAlignment="Center"/>
-
-
-                <!-- Кнопка сортировки по имени -->
-                <Button x:Name="SortByNameBtn"
-                        Content="Ab"
-                        Style="{StaticResource ThemeSymbolButtonStyle}"
-                        ToolTip="Сортировка по имени"
-                        Margin="0,0,0,0"
-                        Click="SortByName_Click"/>
-
-                <Button x:Name="SortByLastLaunchBtn"
-                        Content="🕒"
-                        Style="{StaticResource ThemeSymbolButtonStyle}"
-                        ToolTip="Сортировка по последнему запуску"
-                        Margin="0,0,0,0"
-                        Click="SortByLastLaunch_Click"/>
-
-                <Button Content="⚙"
-                    Command="{Binding OpenSettingsCommand}"
-                    Style="{DynamicResource ThemeSymbolButtonStyle}"
-                    Margin="0,0,0,0"/>
-
-                <Button Content="?" 
-                        Command="{Binding OpenAboutCommand}" 
-                        Style="{StaticResource ThemeSymbolButtonStyle}" 
-                        Margin="00,0,0,0" 
-                        ToolTip="О программе"/>
-            </StackPanel>
-
-            <Border Grid.Row="1"
-                    Background="{DynamicResource WindowBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="10">
-
+            <Border Grid.Row="1" Background="Transparent">
                 <Border.Resources>
                     <Style TargetType="Border" x:Key="ProgramTileStyle">
-                        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}">
-
-                        </Setter>
-                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
+                        <Setter Property="BorderThickness" Value="1"/>
                         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                        <Setter Property="CornerRadius" Value="14"/>
+                        <Setter Property="CornerRadius" Value="8"/>
                         <Setter Property="Padding" Value="12"/>
                         <Setter Property="Cursor" Value="Hand"/>
-                        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                        <Setter Property="RenderTransform">
-                            <Setter.Value>
-                                <ScaleTransform ScaleX="1" ScaleY="1"/>
-                            </Setter.Value>
-                        </Setter>
-
                         <Style.Triggers>
-                            <!-- Наведение -->
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="RenderTransform">
-                                    <Setter.Value>
-                                        <ScaleTransform ScaleX="1.05" ScaleY="1.05"/>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Background" Value="{DynamicResource BorderBrush}">
-                                </Setter>
                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Resources>
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto" 
-                              HorizontalScrollBarVisibility="Disabled">
-                    <ItemsControl ItemsSource="{Binding Programs}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal"
-                                           Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{DynamicResource ProgramTileStyle}"
-                            MouseLeftButtonDown="ProgramTile_MouseLeftButtonDown"
-                            Width="220"
-                            Height="120"
-                            Margin="10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <!-- Иконка -->
-                                        <Image Grid.Column="0"
-                                   Width="48" Height="48"
-                                   Margin="0,0,12,0">
-                                            <Image.Source>
-                                                <Binding Path="Path" Converter="{StaticResource PathToIconConverter}"/>
-                                            </Image.Source>
-                                        </Image>
-
-                                        <!-- Текст -->
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Name}"
-                                           Foreground="{DynamicResource TextForegroundBrush}"
-                                           FontWeight="SemiBold"
-                                           FontSize="14"
-                                           TextTrimming="CharacterEllipsis"
-                                           MaxWidth="140"/>
-                                            <TextBlock Text="{Binding Category.Name}"
-                                           Foreground="{DynamicResource DisabledBrush}"
-                                           FontSize="11"
-                                           Margin="0,4,0,0"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <ItemsControl ItemsSource="{Binding Programs}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal"
+                           Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"/>
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <Border Style="{DynamicResource ProgramTileStyle}"
+                        MouseLeftButtonDown="ProgramTile_MouseLeftButtonDown"
+                        Width="220"
+                        Height="120"
+                        Margin="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" Width="48" Height="48" Margin="0,0,12,0"
+                               VerticalAlignment="Center">
+                            <Image.Source>
+                                <Binding Path="Path" Converter="{StaticResource PathToIconConverter}"/>
+                            </Image.Source>
+                        </Image>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Name}"
+                                       Foreground="{DynamicResource TextForegroundBrush}"
+                                       FontWeight="SemiBold"
+                                       FontSize="14"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxWidth="140"/>
+                            <TextBlock Text="{Binding Category.Name}"
+                                       Foreground="{DynamicResource DisabledBrush}"
+                                       FontSize="11"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</ScrollViewer>
             </Border>
-
         </Grid>
     </Grid>
 </Window>

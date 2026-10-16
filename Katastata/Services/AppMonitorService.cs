@@ -17,7 +17,7 @@ namespace Katastata.Services
 {
     public class AppMonitorService
     {
-        private const int TickMs = 10000;
+        private const int TickMs = 1000;
         // Сессии короче этого значения не сохраняются
         private static readonly TimeSpan MinSession = TimeSpan.FromMinutes(1);
 

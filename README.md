@@ -9,12 +9,6 @@
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-> Скриншоты: добавьте в папку `docs/screenshots/` и подключите ниже.
->
-> `![Главное окно](docs/screenshots/main.png)`
-
----
-
 ## Содержание
 
 - [Возможности](#возможности)
